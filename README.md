@@ -36,6 +36,21 @@ Follow these steps to install the application on your Windows computer:
     - You can close the main window to minimize it to the tray; the timer will keep running.
     - Right-click the tray icon to Quit the application completely.
 
+## Linux Installation
+
+To install on Linux:
+
+1.  **Build the App**:
+    You need to run the build command. If you are on Windows, you might need to use WSL (Windows Subsystem for Linux) or build it on a Linux machine.
+    ```bash
+    npm run electron:build -- --linux
+    ```
+
+2.  **Locate the Installer**:
+    Go to the `dist` folder. You will find:
+    - `.AppImage` file: Can be run directly (make it executable first: `chmod +x filename.AppImage`).
+    - `.deb` file: Can be installed on Debian/Ubuntu based systems (`sudo dpkg -i filename.deb`).
+
 ## Development
 
 To run the app in development mode:

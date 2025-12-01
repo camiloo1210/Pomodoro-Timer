@@ -25,6 +25,14 @@
     "win": {
       "icon": "public/assets/tomato_idle.png",
       "target": "nsis"
+    },
+    "linux": {
+      "icon": "public/assets/tomato_idle.png",
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Utility"
     }
   },
   "dependencies": {

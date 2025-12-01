@@ -1,39 +1,53 @@
-import { useTimer } from './logic/useTimer';
+import { useTimer, FocusMode } from './logic/useTimer';
 import { TomatoAvatar } from './components/TomatoAvatar';
 import { TimerDisplay } from './components/TimerDisplay';
 import { Controls } from './components/Controls';
 import { HealthTips } from './components/HealthTips';
+import { WaterTracker } from './components/WaterTracker';
 import './App.css';
 
 function App() {
-  const { time, isActive, mode, startTimer, pauseTimer, resetTimer, switchMode } = useTimer();
+  const {
+    time,
+    isActive,
+    focusMode,
+    timerState,
+    startTimer,
+    pauseTimer,
+    resetTimer,
+    setMode
+  } = useTimer();
 
   return (
     <div className="app-container">
-      <h1 className="title">Pixel Pomodoro</h1>
+      <h1 className="title">Pomodoro Timer</h1>
 
       <div className="mode-selector">
         <button
-          className={`mode-btn ${mode === 'WORK' ? 'active' : ''}`}
-          onClick={() => switchMode('WORK')}
+          className={`mode-btn ${focusMode === 'HARD' ? 'active' : ''}`}
+          onClick={() => setMode('HARD')}
         >
-          Work
+          Hard
         </button>
         <button
-          className={`mode-btn ${mode === 'SHORT_BREAK' ? 'active' : ''}`}
-          onClick={() => switchMode('SHORT_BREAK')}
+          className={`mode-btn ${focusMode === 'MEDIUM' ? 'active' : ''}`}
+          onClick={() => setMode('MEDIUM')}
         >
-          Short Break
+          Medium
         </button>
         <button
-          className={`mode-btn ${mode === 'LONG_BREAK' ? 'active' : ''}`}
-          onClick={() => switchMode('LONG_BREAK')}
+          className={`mode-btn ${focusMode === 'LIGHT' ? 'active' : ''}`}
+          onClick={() => setMode('LIGHT')}
         >
-          Long Break
+          Light
         </button>
       </div>
 
-      <TomatoAvatar mode={mode} isActive={isActive} />
+      <div className="state-indicator">
+        {timerState === 'WORK' ? 'FOCUS TIME' : 'BREAK TIME'}
+      </div>
+
+      <TomatoAvatar mode={timerState === 'WORK' ? 'WORK' : 'SHORT_BREAK'} isActive={isActive} />
       <TimerDisplay time={time} />
       <Controls
         isActive={isActive}
@@ -41,7 +55,11 @@ function App() {
         onPause={pauseTimer}
         onReset={resetTimer}
       />
-      <HealthTips mode={mode} />
+
+      <div className="extras">
+        <WaterTracker />
+        <HealthTips mode={timerState === 'WORK' ? 'WORK' : 'SHORT_BREAK'} />
+      </div>
     </div>
   );
 }

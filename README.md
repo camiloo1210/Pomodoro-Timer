@@ -9,13 +9,32 @@ A pixel-art style Pomodoro Timer designed for programmers, focused on health and
 - **System Notifications**: Native desktop notifications when the timer completes.
 - **Sound Alerts**: Audio alert when the timer finishes.
 
-## Installation
+## Installation Guide
 
-1.  Locate the installer file: `dist/Pomodoro Timer Setup 0.0.0.exe` (or similar).
-2.  Double-click the installer to run it.
-3.  The app will install and launch automatically.
-4.  You can find the app in your Start Menu as "Pomodoro Timer".
-5.  The app runs in the system tray. Closing the window will minimize it to the tray. To quit, right-click the tray icon and select "Quit".
+Follow these steps to install the application on your Windows computer:
+
+1.  **Navigate to the Build Folder**:
+    Open your file explorer and go to the `dist` folder inside the project directory:
+    `t:\Platanito\Pomodoro Timer\dist`
+
+2.  **Locate the Installer**:
+    Look for a file named `Pomodoro Timer Setup 0.0.0.exe`.
+
+3.  **Run the Installer**:
+    Double-click on `Pomodoro Timer Setup 0.0.0.exe`.
+    *   *Note*: Windows might ask for permission or show a "SmartScreen" warning since this is a self-signed app. If this happens, click "More info" and then "Run anyway".
+
+4.  **Wait for Installation**:
+    The installation process is automatic and very quick. You might see a small loading window.
+
+5.  **Launch the App**:
+    Once installed, the application should open automatically.
+    You can also find it later by searching for "Pomodoro Timer" in your Windows Start Menu.
+
+6.  **Using the App**:
+    - The app will appear in your system tray (bottom right corner, near the clock) as a small tomato icon.
+    - You can close the main window to minimize it to the tray; the timer will keep running.
+    - Right-click the tray icon to Quit the application completely.
 
 ## Development
 

@@ -1,16 +1,27 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
-type TimerMode = 'WORK' | 'SHORT_BREAK' | 'LONG_BREAK';
+export type FocusMode = 'HARD' | 'MEDIUM' | 'LIGHT';
+export type TimerState = 'WORK' | 'BREAK';
 
-const WORK_TIME = 25 * 60;
-const SHORT_BREAK_TIME = 5 * 60;
-const LONG_BREAK_TIME = 15 * 60;
+const MODES = {
+    HARD: { work: 50 * 60, break: 10 * 60 },
+    MEDIUM: { work: 25 * 60, break: 5 * 60 },
+    LIGHT: { work: 15 * 60, break: 5 * 60 },
+};
 
 export const useTimer = () => {
-    const [time, setTime] = useState(WORK_TIME);
+    const [focusMode, setFocusMode] = useState<FocusMode>('MEDIUM');
+    const [timerState, setTimerState] = useState<TimerState>('WORK');
+
+    const [time, setTime] = useState(MODES.MEDIUM.work);
     const [isActive, setIsActive] = useState(false);
-    const [mode, setMode] = useState<TimerMode>('WORK');
+
     const workerRef = useRef<Worker | null>(null);
+    const stateRef = useRef({ timerState, focusMode });
+
+    useEffect(() => {
+        stateRef.current = { timerState, focusMode };
+    }, [timerState, focusMode]);
 
     useEffect(() => {
         workerRef.current = new Worker(new URL('./timer.worker.ts', import.meta.url), {
@@ -23,13 +34,46 @@ export const useTimer = () => {
                 setTime(remainingTime);
             } else if (type === 'COMPLETE') {
                 setIsActive(false);
-                new Notification('Pomodoro Timer', {
-                    body: 'Time is up! Take a break or get back to work!',
-                    icon: '/assets/tomato_idle.png'
-                });
 
-                const audio = new Audio('/assets/alarm.mp3');
+                // Play sound for 5 seconds
+                const audio = new Audio('./assets/alarm.mp3');
+                audio.loop = true;
                 audio.play().catch(e => console.error('Error playing sound:', e));
+
+                setTimeout(() => {
+                    audio.pause();
+                    audio.currentTime = 0;
+                }, 5000);
+
+                const currentState = stateRef.current.timerState;
+                const currentMode = stateRef.current.focusMode;
+
+                if (currentState === 'WORK') {
+                    new Notification('Pomodoro Timer', {
+                        body: 'Work done! Starting break.',
+                        icon: '/assets/tomato_break.png'
+                    });
+
+                    // Auto-switch to break and start
+                    setTimerState('BREAK');
+                    const breakTime = MODES[currentMode].break;
+                    setTime(breakTime);
+                    setIsActive(true);
+                    workerRef.current?.postMessage({ command: 'START', payload: { duration: breakTime } });
+
+                } else {
+                    new Notification('Pomodoro Timer', {
+                        body: 'Break over! Time to focus.',
+                        icon: '/assets/tomato_work.png'
+                    });
+
+                    // Auto-switch to work and start
+                    setTimerState('WORK');
+                    const workTime = MODES[currentMode].work;
+                    setTime(workTime);
+                    setIsActive(true);
+                    workerRef.current?.postMessage({ command: 'START', payload: { duration: workTime } });
+                }
             }
         };
 
@@ -50,22 +94,17 @@ export const useTimer = () => {
 
     const resetTimer = useCallback(() => {
         setIsActive(false);
-        let newTime = WORK_TIME;
-        if (mode === 'SHORT_BREAK') newTime = SHORT_BREAK_TIME;
-        if (mode === 'LONG_BREAK') newTime = LONG_BREAK_TIME;
-
+        const newTime = timerState === 'WORK' ? MODES[focusMode].work : MODES[focusMode].break;
         setTime(newTime);
         workerRef.current?.postMessage({ command: 'RESET' });
-    }, [mode]);
+    }, [focusMode, timerState]);
 
-    const switchMode = useCallback((newMode: TimerMode) => {
-        setMode(newMode);
+    const setMode = useCallback((newMode: FocusMode) => {
+        setFocusMode(newMode);
+        setTimerState('WORK'); // Reset to work when changing mode
+        setTime(MODES[newMode].work);
         setIsActive(false);
         workerRef.current?.postMessage({ command: 'STOP' });
-
-        if (newMode === 'WORK') setTime(WORK_TIME);
-        else if (newMode === 'SHORT_BREAK') setTime(SHORT_BREAK_TIME);
-        else if (newMode === 'LONG_BREAK') setTime(LONG_BREAK_TIME);
     }, []);
 
     useEffect(() => {
@@ -74,5 +113,14 @@ export const useTimer = () => {
         }
     }, []);
 
-    return { time, isActive, mode, startTimer, pauseTimer, resetTimer, switchMode };
+    return {
+        time,
+        isActive,
+        focusMode,
+        timerState,
+        startTimer,
+        pauseTimer,
+        resetTimer,
+        setMode
+    };
 };
